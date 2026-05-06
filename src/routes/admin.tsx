@@ -6,7 +6,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, CheckCircle2, XCircle, MessageSquareReply } from "lucide-react";
+import { Sparkles, CheckCircle2, XCircle, MessageSquareReply, Inbox, Clock, ShieldCheck, User } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin")({ component: Admin });
