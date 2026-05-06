@@ -86,18 +86,52 @@ function Dashboard() {
 
   if (loading || !user) return null;
 
+  const stats = {
+    total: items.length,
+    pending: items.filter((i) => i.status === "pending").length,
+    approved: items.filter((i) => i.status === "approved").length,
+    rejected: items.filter((i) => i.status === "rejected").length,
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <AppHeader />
+
+      <div className="relative overflow-hidden border-b">
+        <div className="absolute inset-0 -z-10" style={{ background: "var(--gradient-hero)", opacity: 0.1 }} />
+        <div className="container mx-auto px-6 py-10">
+          <h1 className="text-3xl font-bold">Olá, {user.email?.split("@")[0]} 👋</h1>
+          <p className="text-sm text-muted-foreground mt-1">Compartilhe ideias para tornar a empresa ainda melhor.</p>
+          <div className="mt-6 grid gap-3 sm:grid-cols-4">
+            {[
+              { label: "Total", value: stats.total, cls: "text-foreground" },
+              { label: "Pendentes", value: stats.pending, cls: "text-muted-foreground" },
+              { label: "Aprovadas", value: stats.approved, cls: "text-primary" },
+              { label: "Recusadas", value: stats.rejected, cls: "text-destructive" },
+            ].map((c) => (
+              <div key={c.label} className="rounded-xl border bg-card/80 backdrop-blur p-4">
+                <p className="text-xs text-muted-foreground">{c.label}</p>
+                <p className={`mt-1 text-2xl font-bold ${c.cls}`}>{c.value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <main className="container mx-auto px-6 py-10">
         <div className="grid gap-8 lg:grid-cols-[1fr_1.4fr]">
           <section>
-            <div className="rounded-2xl border bg-card p-6" style={{ boxShadow: "var(--shadow-soft)" }}>
+            <div className="rounded-2xl border bg-card p-6 sticky top-24" style={{ boxShadow: "var(--shadow-soft)" }}>
               <div className="flex items-center gap-2">
-                <PlusCircle className="h-5 w-5 text-primary" />
-                <h2 className="text-lg font-semibold">Nova sugestão</h2>
+                <div className="grid h-9 w-9 place-items-center rounded-lg" style={{ background: "var(--gradient-primary)" }}>
+                  <PlusCircle className="h-5 w-5 text-primary-foreground" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold">Nova sugestão</h2>
+                  <p className="text-xs text-muted-foreground">Sua ideia será analisada pela IA.</p>
+                </div>
               </div>
-              <form onSubmit={submit} className="mt-4 space-y-4">
+              <form onSubmit={submit} className="mt-5 space-y-4">
                 <div>
                   <Label>Título</Label>
                   <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ex: Melhorar processo de onboarding" />
@@ -116,7 +150,9 @@ function Dashboard() {
           </section>
 
           <section>
-            <h2 className="mb-4 text-lg font-semibold">Minhas sugestões</h2>
+            <h2 className="mb-4 text-lg font-semibold flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" /> Minhas sugestões
+            </h2>
             {items.length === 0 ? (
               <div className="rounded-2xl border border-dashed bg-card/50 p-10 text-center text-sm text-muted-foreground">
                 Nenhuma sugestão ainda. Envie sua primeira ideia!
@@ -124,7 +160,7 @@ function Dashboard() {
             ) : (
               <div className="space-y-4">
                 {items.map((s) => (
-                  <div key={s.id} className="rounded-2xl border bg-card p-5" style={{ boxShadow: "var(--shadow-soft)" }}>
+                  <div key={s.id} className="rounded-2xl border bg-card p-5 transition hover:shadow-md" style={{ boxShadow: "var(--shadow-soft)" }}>
                     <div className="flex items-start justify-between gap-3">
                       <h3 className="font-semibold">{s.title}</h3>
                       {statusBadge(s.status)}
