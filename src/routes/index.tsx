@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Lightbulb, Sparkles, ShieldCheck, MessageSquare } from "lucide-react";
+import { Lightbulb, Sparkles, ShieldCheck, MessageSquare, ArrowRight, Zap, Users, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const Route = createFileRoute("/")({
   component: Home,
