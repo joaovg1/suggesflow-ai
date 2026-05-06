@@ -1,1 +1,4 @@
 project_id = "lalqdkrjpqpoqukgepjx"
+
+[functions.estimate-cost]
+verify_jwt = true
