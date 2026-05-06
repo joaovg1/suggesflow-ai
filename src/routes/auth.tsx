@@ -50,7 +50,6 @@ function AuthPage() {
     const { data, error } = await supabase.auth.signInWithPassword({ email: loginEmail, password: loginPass });
     if (error) { setBusy(false); return toast.error(error.message); }
 
-    // Verify role
     const { data: roleRow } = await supabase
       .from("user_roles").select("role").eq("user_id", data.user.id).maybeSingle();
     const actualRole = roleRow?.role ?? "employee";
@@ -60,7 +59,7 @@ function AuthPage() {
       setBusy(false);
       return toast.error("Você não tem permissão de administrador.");
     }
-    toast.success("Login realizado!");
+    toast.success(actualRole === "admin" ? "Bem-vindo, administrador!" : "Login realizado!");
     setBusy(false);
   };
 
