@@ -30,41 +30,10 @@ function Admin() {
   const [responses, setResponses] = useState<Record<string, string>>({});
   const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("all");
 
-  // Loading state
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Carregando...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Redirect if not logged in
-  if (!user) {
-    navigate({ to: "/auth" });
-    return null;
-  }
-
-  // Redirect if not admin
-  if (role === "employee") {
-    navigate({ to: "/dashboard" });
-    return null;
-  }
-
-  // Show loading if role is still being determined
-  if (role === null) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Verificando permissões...</p>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (!loading && !user) navigate({ to: "/auth" });
+    if (!loading && user && role === "employee") navigate({ to: "/dashboard" });
+  }, [user, role, loading, navigate]);
 
   const load = async () => {
     const { data } = await supabase.from("suggestions").select("*").order("created_at", { ascending: false });

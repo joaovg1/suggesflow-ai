@@ -25,10 +25,6 @@ type Sug = {
 function Admin() {
   const { user, role, loading } = useAuth();
   const navigate = useNavigate();
-  const [items, setItems] = useState<Sug[]>([]);
-  const [authors, setAuthors] = useState<Record<string, string>>({});
-  const [responses, setResponses] = useState<Record<string, string>>({});
-  const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("all");
 
   // Loading state
   if (loading) {
