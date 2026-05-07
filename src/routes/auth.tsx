@@ -34,13 +34,7 @@ function AuthPage() {
 
   useEffect(() => {
     if (!loading && user && role) {
-      const pref = typeof window !== "undefined" ? sessionStorage.getItem("preferredRole") : null;
-      let target: "/admin" | "/dashboard";
-      if (pref === "employee") target = "/dashboard";
-      else if (pref === "admin" && role === "admin") target = "/admin";
-      else target = role === "admin" ? "/admin" : "/dashboard";
-      if (pref) sessionStorage.removeItem("preferredRole");
-      navigate({ to: target });
+      navigate({ to: role === "admin" ? "/admin" : "/dashboard" });
     }
   }, [user, role, loading, navigate]);
 
@@ -53,9 +47,8 @@ function AuthPage() {
       if (err instanceof z.ZodError) return toast.error(err.issues[0].message);
     }
     setBusy(true);
-    sessionStorage.setItem("preferredRole", loginRole);
     const { data, error } = await supabase.auth.signInWithPassword({ email: loginEmail, password: loginPass });
-    if (error) { setBusy(false); sessionStorage.removeItem("preferredRole"); return toast.error(error.message); }
+    if (error) { setBusy(false); return toast.error(error.message); }
 
     const { data: roleRow } = await supabase
       .from("user_roles").select("role").eq("user_id", data.user.id).maybeSingle();
@@ -63,9 +56,12 @@ function AuthPage() {
 
     if (loginRole === "admin" && actualRole !== "admin") {
       await supabase.auth.signOut();
-      sessionStorage.removeItem("preferredRole");
       setBusy(false);
       return toast.error("Você não tem permissão de administrador.");
+    }
+    // Persist the chosen active role so the header/badge reflects it
+    if (typeof window !== "undefined") {
+      localStorage.setItem("activeRole", loginRole);
     }
     toast.success(loginRole === "admin" ? "Bem-vindo, administrador!" : "Login realizado!");
     setBusy(false);

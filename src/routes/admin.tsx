@@ -23,7 +23,7 @@ type Sug = {
 };
 
 function Admin() {
-  const { user, role, loading } = useAuth();
+  const { user, isAdmin, loading, setActiveRole } = useAuth();
   const navigate = useNavigate();
   const [items, setItems] = useState<Sug[]>([]);
   const [authors, setAuthors] = useState<Record<string, string>>({});
@@ -32,8 +32,10 @@ function Admin() {
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
-    if (!loading && user && role && role !== "admin") navigate({ to: "/dashboard" });
-  }, [user, role, loading, navigate]);
+    if (!loading && user && !isAdmin) navigate({ to: "/dashboard" });
+    if (!loading && isAdmin) setActiveRole("admin");
+  }, [user, isAdmin, loading, navigate, setActiveRole]);
+
 
   const load = async () => {
     const { data } = await supabase.from("suggestions").select("*").order("created_at", { ascending: false });
@@ -47,7 +49,7 @@ function Admin() {
       setAuthors(map);
     }
   };
-  useEffect(() => { if (role === "admin") load(); }, [role]);
+  useEffect(() => { if (isAdmin) load(); }, [isAdmin]);
 
   const update = async (id: string, patch: Partial<Sug>) => {
     const { error } = await supabase.from("suggestions").update(patch).eq("id", id);
@@ -65,7 +67,7 @@ function Admin() {
     return <Badge className={map[s].cls} variant="outline">{map[s].label}</Badge>;
   };
 
-  if (loading || !user || role !== "admin") return null;
+  if (loading || !user || !isAdmin) return null;
 
   const stats = {
     total: items.length,
