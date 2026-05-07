@@ -53,8 +53,9 @@ function AuthPage() {
       if (err instanceof z.ZodError) return toast.error(err.issues[0].message);
     }
     setBusy(true);
+    sessionStorage.setItem("preferredRole", loginRole);
     const { data, error } = await supabase.auth.signInWithPassword({ email: loginEmail, password: loginPass });
-    if (error) { setBusy(false); return toast.error(error.message); }
+    if (error) { setBusy(false); sessionStorage.removeItem("preferredRole"); return toast.error(error.message); }
 
     const { data: roleRow } = await supabase
       .from("user_roles").select("role").eq("user_id", data.user.id).maybeSingle();
@@ -62,10 +63,11 @@ function AuthPage() {
 
     if (loginRole === "admin" && actualRole !== "admin") {
       await supabase.auth.signOut();
+      sessionStorage.removeItem("preferredRole");
       setBusy(false);
       return toast.error("Você não tem permissão de administrador.");
     }
-    toast.success(actualRole === "admin" ? "Bem-vindo, administrador!" : "Login realizado!");
+    toast.success(loginRole === "admin" ? "Bem-vindo, administrador!" : "Login realizado!");
     setBusy(false);
   };
 
