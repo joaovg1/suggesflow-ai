@@ -1,12 +1,12 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Lightbulb, LogOut, LayoutDashboard, ShieldCheck } from "lucide-react";
+import { Lightbulb, LogOut, LayoutDashboard, ShieldCheck, RefreshCw } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 export function AppHeader() {
-  const { role, signOut, user } = useAuth();
+  const { role, isAdmin, setActiveRole, signOut, user } = useAuth();
   const navigate = useNavigate();
   return (
     <header className="border-b bg-background/70 backdrop-blur-xl sticky top-0 z-20">
@@ -25,6 +25,24 @@ export function AppHeader() {
         </Link>
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground hidden sm:inline">{user?.email}</span>
+          {isAdmin && role === "employee" && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => { setActiveRole("admin"); navigate({ to: "/admin" }); }}
+            >
+              <RefreshCw className="mr-1 h-4 w-4" />Mudar para Admin
+            </Button>
+          )}
+          {isAdmin && role === "admin" && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => { setActiveRole("employee"); navigate({ to: "/dashboard" }); }}
+            >
+              <RefreshCw className="mr-1 h-4 w-4" />Ver como Funcionário
+            </Button>
+          )}
           {role === "admin" && (
             <Link to="/admin"><Button variant="ghost" size="sm"><ShieldCheck className="mr-1 h-4 w-4" />Admin</Button></Link>
           )}
