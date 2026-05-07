@@ -67,7 +67,7 @@ function Admin() {
     return <Badge className={map[s].cls} variant="outline">{map[s].label}</Badge>;
   };
 
-  if (loading || !user || role !== "admin") return null;
+  if (loading || !user || !isAdmin) return null;
 
   const stats = {
     total: items.length,
