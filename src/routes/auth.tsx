@@ -34,7 +34,13 @@ function AuthPage() {
 
   useEffect(() => {
     if (!loading && user && role) {
-      navigate({ to: role === "admin" ? "/admin" : "/dashboard" });
+      const pref = typeof window !== "undefined" ? sessionStorage.getItem("preferredRole") : null;
+      let target: "/admin" | "/dashboard";
+      if (pref === "employee") target = "/dashboard";
+      else if (pref === "admin" && role === "admin") target = "/admin";
+      else target = role === "admin" ? "/admin" : "/dashboard";
+      if (pref) sessionStorage.removeItem("preferredRole");
+      navigate({ to: target });
     }
   }, [user, role, loading, navigate]);
 
