@@ -59,7 +59,11 @@ function AuthPage() {
       setBusy(false);
       return toast.error("Você não tem permissão de administrador.");
     }
-    toast.success(actualRole === "admin" ? "Bem-vindo, administrador!" : "Login realizado!");
+    // Persist the chosen active role so the header/badge reflects it
+    if (typeof window !== "undefined") {
+      localStorage.setItem("activeRole", loginRole);
+    }
+    toast.success(loginRole === "admin" ? "Bem-vindo, administrador!" : "Login realizado!");
     setBusy(false);
   };
 

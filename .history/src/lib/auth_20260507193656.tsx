@@ -70,10 +70,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .select("role")
           .eq("user_id", s.user.id)
           .maybeSingle();
-        applyRole((data?.role as Role) ?? "employee");
+<<<<<<< HEAD
+        setRole((data?.role as Role) ?? "employee");
       } else {
-        setActualRole(null);
-        setActiveRoleState(null);
+        setRole(null);
+=======
+        applyRole((data?.role as Role) ?? "employee");
+>>>>>>> 54d7f9aa257bd516a26d21d4b60e3825d0a59524
       }
       setLoading(false);
     });
