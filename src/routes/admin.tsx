@@ -49,7 +49,7 @@ function Admin() {
       setAuthors(map);
     }
   };
-  useEffect(() => { if (role === "admin") load(); }, [role]);
+  useEffect(() => { if (isAdmin) load(); }, [isAdmin]);
 
   const update = async (id: string, patch: Partial<Sug>) => {
     const { error } = await supabase.from("suggestions").update(patch).eq("id", id);
