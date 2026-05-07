@@ -23,7 +23,7 @@ type Sug = {
 };
 
 function Admin() {
-  const { user, role, loading } = useAuth();
+  const { user, isAdmin, loading, setActiveRole } = useAuth();
   const navigate = useNavigate();
   const [items, setItems] = useState<Sug[]>([]);
   const [authors, setAuthors] = useState<Record<string, string>>({});
@@ -32,8 +32,10 @@ function Admin() {
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
-    if (!loading && user && role && role !== "admin") navigate({ to: "/dashboard" });
-  }, [user, role, loading, navigate]);
+    if (!loading && user && !isAdmin) navigate({ to: "/dashboard" });
+    if (!loading && isAdmin) setActiveRole("admin");
+  }, [user, isAdmin, loading, navigate, setActiveRole]);
+
 
   const load = async () => {
     const { data } = await supabase.from("suggestions").select("*").order("created_at", { ascending: false });
