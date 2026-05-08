@@ -47,24 +47,31 @@ function AuthPage() {
       if (err instanceof z.ZodError) return toast.error(err.issues[0].message);
     }
     setBusy(true);
-    const { data, error } = await supabase.auth.signInWithPassword({ email: loginEmail, password: loginPass });
-    if (error) { setBusy(false); return toast.error(error.message); }
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email: loginEmail, password: loginPass });
+      if (error) throw error;
+      if (!data.user) throw new Error("Falha ao entrar.");
 
-    const { data: roleRow } = await supabase
-      .from("user_roles").select("role").eq("user_id", data.user.id).maybeSingle();
-    const actualRole = roleRow?.role ?? "employee";
+      const { data: roleRow, error: roleError } = await supabase
+        .from("user_roles").select("role").eq("user_id", data.user.id).maybeSingle();
+      if (roleError) throw roleError;
+      const actualRole = roleRow?.role ?? "employee";
 
-    if (loginRole === "admin" && actualRole !== "admin") {
-      await supabase.auth.signOut();
+      if (loginRole === "admin" && actualRole !== "admin") {
+        await supabase.auth.signOut();
+        return toast.error("Você não tem permissão de administrador.");
+      }
+
+      if (typeof window !== "undefined") {
+        localStorage.setItem("activeRole", loginRole);
+      }
+      toast.success(loginRole === "admin" ? "Bem-vindo, administrador!" : "Login realizado!");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Falha ao entrar.";
+      toast.error(message);
+    } finally {
       setBusy(false);
-      return toast.error("Você não tem permissão de administrador.");
     }
-    // Persist the chosen active role so the header/badge reflects it
-    if (typeof window !== "undefined") {
-      localStorage.setItem("activeRole", loginRole);
-    }
-    toast.success(loginRole === "admin" ? "Bem-vindo, administrador!" : "Login realizado!");
-    setBusy(false);
   };
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -77,17 +84,25 @@ function AuthPage() {
       if (err instanceof z.ZodError) return toast.error(err.issues[0].message);
     }
     setBusy(true);
-    const { error } = await supabase.auth.signUp({
-      email,
-      password: pass,
-      options: {
-        emailRedirectTo: `${window.location.origin}/`,
-        data: { display_name: name },
-      },
-    });
-    setBusy(false);
-    if (error) return toast.error(error.message);
-    toast.success("Conta criada! O primeiro usuário se torna administrador.");
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password: pass,
+        options: {
+          data: { display_name: name },
+        },
+      });
+      if (error) throw error;
+      toast.success("Conta criada! O primeiro usuário se torna administrador.");
+      setName("");
+      setEmail("");
+      setPass("");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Falha ao criar conta.";
+      toast.error(message);
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
